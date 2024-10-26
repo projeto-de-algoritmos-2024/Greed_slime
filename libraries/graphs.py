@@ -322,20 +322,28 @@ class graph():
         """
         self.cleanup() #makes sure initial queues are clean and stuff.
         analisys = []
+        tree = []
+        layer = []
         for i in range(len(self.connections)):
-            tree = []
+            tree.clear()
+            lastnode: int
             if not self.isVisited(i): #means we process for all indexes not visited. After first execution, will always search for not visited indexes.
                 self.visit(i)
                 self.__enqueue(i)
-                tree.append([i]) #adds root 
+                tree.append([i]) #adds root as first layer of the tree 
+                lastnode = i
             while not self.queueIsEmpty():
                 thisNode = self.__dequeue()
                 for z in len(self.connections[thisNode]):
                     if self.connections[thisNode][z] and not self.isVisited(z):
                         self.visit(z)
                         self.__enqueue(z)
-            if len(tree) > 0:
+                        
+                tree.append(layer)
+            if len(tree) > 0: #added because an empty tree might be added in case that for passes through something already visited :0
                 analisys.append(tree)
+
+
 
                 
             
