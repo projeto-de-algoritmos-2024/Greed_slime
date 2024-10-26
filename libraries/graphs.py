@@ -29,6 +29,10 @@ version 24102024 -> graph class basic ass implementation, bidirectional only.
                 bfs is implemented with a queue, in which the queue is a list and its methods are supposedly enough to deal with the algorithm.
                 also, graph has a __visited private variable which stores what exactly was visited for both the bfs and the dfs algorithms.
 
+                running bfs on an initialized graph such as:
+                    somegraph.bfsSimple() 
+                should return a 3d list structure of the layers.
+
             dfs: 
                 not yet implemented :)
                 
@@ -88,13 +92,9 @@ def numberDetect(someString: str) -> list: #passed on test battery 1 and is work
             print("tried to collect not number. ignored!")
     return numberlist
 
-class tree(): 
-    def __init__() -> None:
-        pass
-
-
+#tree class moved away from this file
 class graph():
-    def __init__(self, connectionsInit: list) -> None:
+    def __init__(self, connectionsInit: list, **kwargs) -> None:
         """
             connectionsInit MUST be a list of numbers separated SOMEHOW.
             this works in pairs, if you fuckup a pair, putting a triad or something, the
@@ -108,24 +108,28 @@ class graph():
         """
         self.__visited = []                                                                  # <- this will be used when searching and stuff.
         self.__queue =  []                                                                   # <- and so will this!
-        self.numNodes = max(max(connectionsInit))                                            #this depends on an implementation where max will actually go through lists recursively.
+        self.numNodes = max(max(connectionsInit)) + 1                                           #this depends on an implementation where max will actually go through lists recursively.
+        if "debug" in kwargs:
+            print(self.numNodes)
         self.connections = [[0 for i in range(self.numNodes)] for i in range(self.numNodes)] #generate the 2d matrix, this is our graph representation.
         
         #this block will operate through every connection passed and assemble our graph.
             #ah yes, if you want this step to run faster, be a good boy and pass a list with bunch of lists with two integers each :)
 
         for connection in connectionsInit:
+            if "debug" in kwargs:
+                print("initializing a new connection!")
+                print(connection)
             if connection[0] > self.numNodes - 1 or connection[1] > self.numNodes:
                 print("out of bounds observed. ignoring...")
                 continue 
-            if type(connection) == str: #when type is string, this will call numberDetect :0
-                newConnection: list =  numberDetect(connection)
-                if len(newConnection) > 1: #if this is not true, connection is never made.
-                    self.connections[newConnection[0]][newConnection[1]] = self.connections[newConnection[1]][newConnection[0]] = 1
-            elif type(connection) == list: #meaning, theoretically, this happened -> ["diwaond1dniwoad2", [2, 3], "39201SEPARATOR4"].
-                if len(connection) > 1:
-                    self.connections[connection[0]][self.connections[1]] = self.connections[connection[1]][connection[0]] = 1
+            self.addConnection(connection)
+        self.connectionsCorrector()
        
+    def printConnections(self) -> None:
+        "prints the connections matrix"
+        for connection in self.connections:
+            print(connection)
 
     def __enqueue(self, node: int) -> int:
         """
@@ -133,7 +137,7 @@ class graph():
 
             return codes:
                 0 -> success code
-                -1 -> failure, somehow
+                -1 -> failure, somehow. Usually, too much memory being used and stuff. 
         
         
         """
@@ -149,21 +153,29 @@ class graph():
 
             return codes:
                 the expected index -> success code
-                -1 -> failure, somehow
+                -1 -> failure, somehow, usually queue empty
         """
         try:
             return self.__queue.pop(0)
         except:
             return -1
     
+    def queueIsEmpty(self):
+        """
+            returns False when internal queue got something inside
+            else returns True
+        """
+        if len(self.__queue) > 0:
+            return False
+        return True
     def clearQueue(self):
         self.__queue.clear()
         
     def addConnection(self, someconnection:list):
         """
-            adds new connection(s).
+            adds new connection.
             input should be formatted the same as one would format the initialization input.
-                then something as [[1,2],[2,3],[3,4],...]
+            still works with string detection, though.
 
             what works the same too:
                 if you pass a smaller than two connection it gets ignored.
@@ -171,17 +183,29 @@ class graph():
             what does not:
                 passing something that would generate a access error gets ignored.
         """
-        for connection in someconnection:
-            if connection[0] > self.numNodes or connection[1] > self.numNodes - 1:
-                continue #meaning it would fuckup and therefore it gets very fucking ignored :)
-            if type(connection) == str: #when type is string, this will call numberDetect :0
-                newConnection: list =  numberDetect(connection)
+        if not someconnection[0] > self.numNodes - 1 or not someconnection[1] > self.numNodes - 1:        
+            if type(someconnection) == str: #when type is string, this will call numberDetect :0
+                newConnection: list =  numberDetect(someconnection)
                 if len(newConnection) > 1: #if this is not true, connection is never made.
                     self.connections[newConnection[0]][newConnection[1]] = self.connections[newConnection[1]][newConnection[0]] = 1
-            elif type(connection) == list: #meaning, theoretically, this happened -> ["diwaond1dniwoad2", [2, 3], "39201SEPARATOR4"].
-                if len(connection) > 1:
-                    self.connections[connection[0]][self.connections[1]] = self.connections[connection[1]][connection[0]] = 1
+            elif type(someconnection) == list: #meaning, theoretically, this happened -> ["diwaond1dniwoad2", [2, 3], "39201SEPARATOR4"].
+                if len(someconnection) > 1:
+                    self.connections[someconnection[0]][self.connections[1]] = self.connections[someconnection[1]][someconnection[0]] = 1
 
+    def severConnection(self, toBeErased: list) -> None: 
+        """
+            Erases a connection from the graph.
+
+            Input:
+                [x,y] connection to be erased
+                Not adapted to work with strings!!
+            output:
+                no output! :0
+
+        """
+        self.connections[toBeErased[0]][toBeErased[1]] = self.connections[toBeErased[1]][toBeErased[0]] = 0 
+
+    
     def connectionsCorrector(self) -> None:
         """
             Makes sure no such connections as x<->x!
@@ -265,8 +289,29 @@ class graph():
                 path1 = somesimplegraph.bfs() 
             
             about the return value:
-                this will return a new graph with some cut connections.
-                Useful to find least distance paths.
+                this will return a list organized by layers.
+                Example 1:
+                    say a given graph is connected like 1->2, 1->3, 2->4, 3->4
+                    then, calling a bfs on this graph should return:
+                    [[[1],[2,3],[4]]]
+                    We would know the connections by calling the original graph again.
+                Reading this information is as follows
+                GRAPH0
+                    [
+                        [TREE0
+                            [LAYER0],
+                            [LAYER1],
+                            ...
+                        ]
+                        [TREE1
+                            [LAYER0],
+                            [LAYER1],
+                        ...]
+                    ]
+                Where if a given graph got more than 1 tree, there are unconnected paths and
+                every layer 0 got no more than 1 node, the root.
+                This 3d structure should be useful to find the precise layers and how many trees 
+                are inside this graph, precisely.
             
             about the implementation:
                 it uses a queue implementation bc i really don't wanna find
@@ -275,15 +320,31 @@ class graph():
                 Will test if it does when we implement dfs. That oughta Foxtrot up
                 quite bad. 
         """
-        self.cleanup()
+        self.cleanup() #makes sure initial queues are clean and stuff.
+        analisys = []
+        for i in range(len(self.connections)):
+            tree = []
+            if not self.isVisited(i): #means we process for all indexes not visited. After first execution, will always search for not visited indexes.
+                self.visit(i)
+                self.__enqueue(i)
+                tree.append([i]) #adds root 
+            while not self.queueIsEmpty():
+                thisNode = self.__dequeue()
+                for z in len(self.connections[thisNode]):
+                    if self.connections[thisNode][z] and not self.isVisited(z):
+                        self.visit(z)
+                        self.__enqueue(z)
+            if len(tree) > 0:
+                analisys.append(tree)
 
-        pass
-
-
-        
                 
-
+            
+                
+                
 def getRandomGraph(seed: int = 3) -> graph:
+    pass
+
+def generateGridGraph(resolution) -> graph:
     pass
         
 if __name__ == "__main__":
@@ -353,5 +414,8 @@ if __name__ == "__main__":
     print("list object after 'popage': ")
     print(somelist)
     print("testing 3 finished!")
-
+    print("TESTING 4: graph initialization")
+    newgraph = graph([[0,1], [1,2], [2,0]], debug=1)
+    newgraph.printConnections()
+    print("testing 4 finished...")
 
