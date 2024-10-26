@@ -66,6 +66,7 @@ def numberDetect(someString: str) -> list: #passed on test battery 1 and is work
             v3 now detects negatives at the cost of - no longer being understood as a separator.
     """
     #initialization
+
     numberlist = [] #this will hold the extracted numbers
     extracting = "" #this should collect the numbers and stuff for later typecasting.
 
@@ -80,7 +81,11 @@ def numberDetect(someString: str) -> list: #passed on test battery 1 and is work
             except:
                 print("extracting error, verify usage of - as a separator inside string")
             extracting = ""
-    if len(extracting) > 0: numberlist.append(int(extracting)) #this avoid forgetting the last number and stuff :0
+    if len(extracting) > 0: #TODO -> fix this algorithm so we don't need the try-excepet chain.
+        try: 
+            numberlist.append(int(extracting)) #this avoid forgetting the last number and stuff :0
+        except:
+            print("tried to collect not number. ignored!")
     return numberlist
 
 class tree(): 
@@ -101,9 +106,9 @@ class graph():
                 somegraph = graph(["12 30", "11 15", "20 41", "11 11"]) -> this will work fine and create a bunch of connections.
 
         """
-        #self.numNodes = numNodes                                                       #would be necessary in a c implementation. Not quite inside python.
-        self.__visited = []                                                                 #this will be used when searching and stuff. 
-        self.numNodes = max(max(connectionsInit))                                                #this depends on an implementation where max will actually go through lists recursively.
+        self.__visited = []                                                                  # <- this will be used when searching and stuff.
+        self.__queue =  []                                                                   # <- and so will this!
+        self.numNodes = max(max(connectionsInit))                                            #this depends on an implementation where max will actually go through lists recursively.
         self.connections = [[0 for i in range(self.numNodes)] for i in range(self.numNodes)] #generate the 2d matrix, this is our graph representation.
         
         #this block will operate through every connection passed and assemble our graph.
@@ -120,7 +125,40 @@ class graph():
             elif type(connection) == list: #meaning, theoretically, this happened -> ["diwaond1dniwoad2", [2, 3], "39201SEPARATOR4"].
                 if len(connection) > 1:
                     self.connections[connection[0]][self.connections[1]] = self.connections[connection[1]][connection[0]] = 1
+       
 
+    def __enqueue(self, node: int) -> int:
+        """
+            enqueue: adds an index to queue
+
+            return codes:
+                0 -> success code
+                -1 -> failure, somehow
+        
+        
+        """
+        try:
+            self.__queue.append(node)
+            return 0 #sucess code
+        except:
+            return -1
+        
+    def __dequeue(self, node: int) -> int:
+        """
+            dequeue: returns the dequeued index
+
+            return codes:
+                the expected index -> success code
+                -1 -> failure, somehow
+        """
+        try:
+            return self.__queue.pop(0)
+        except:
+            return -1
+    
+    def clearQueue(self):
+        self.__queue.clear()
+        
     def addConnection(self, someconnection:list):
         """
             adds new connection(s).
@@ -147,7 +185,6 @@ class graph():
     def connectionsCorrector(self) -> None:
         """
             Makes sure no such connections as x<->x!
-
         """
         for i in range(self.numNodes):
             self.connections[i][i] = 0 
@@ -179,10 +216,18 @@ class graph():
         
         return 0
     
-    def visited(self,nodePosit: int):
+    def clearVisited(self):
+        self.__visited.clear() #simple as
+
+    def isVisited(self,nodePosit: int):
         if nodePosit in self.__visited:
             return True
         return False
+    
+    def visit(self, nodePosit: int) -> None:
+        if nodePosit not in self.__visited:
+            self.__visited.append(nodePosit)
+        
     
     def getVisited(self) -> list:
         """
@@ -200,8 +245,11 @@ class graph():
         """
         return self.__visited
 
-    
-    def bfs(self, start: int = 0, end: int = -1): 
+    def cleanup(self) -> None:
+        self.clearQueue()
+        self.clearVisited()
+
+    def bfsSimple(self): 
         """
             bfs method
                 provides a basic breadth-first searching algorithm
@@ -227,16 +275,10 @@ class graph():
                 Will test if it does when we implement dfs. That oughta Foxtrot up
                 quite bad. 
         """
+        self.cleanup()
 
-        self.__visited.clear()       #clears last run of any algorithm
-        self.__visited.append(start) #start always gets visited first
-        queue = []
-        if end == -1: #means it should run for the entire graph
-            queue.append(start)
-            for i in range(len(self.connections)):
-                pass
-        else:
-            pass
+        pass
+
 
         
                 
@@ -298,5 +340,18 @@ if __name__ == "__main__":
         ) #testing max recursiveness. 
     print(numNodes)
     print([[0 for i in range(numNodes)] for i in range(numNodes)]) #per tested, max needs to be max(max()) to extract actual 2d value!
+    print("testing 2 finished...")
+    print("TESTING 3: usage of popleft list queue")
+    somelist: list = [1,2,3]
+    print("original list: " , somelist)
+    somelist.append(4)
+    print("print list after append: ")
+    print(somelist)
+    #print(somelist.popleft()) #ah yeah, this does NOT work :/
+    print("poping first item (pop left): ")
+    print(somelist.pop(0)) #this should, though...
+    print("list object after 'popage': ")
+    print(somelist)
+    print("testing 3 finished!")
 
 
