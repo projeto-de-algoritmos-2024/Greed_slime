@@ -2,6 +2,14 @@
 Written by BCl0C, whose code is very damn terrible :).
 
 version 24102024 -> graph class basic ass implementation, bidirectional only.
+version 27102024 -> most of bfs implemented, not yet useful.
+0th warning:
+    As one might've noticed, lots of curse words are used during 
+    commenting of the code. 
+    To avoid major consequences, they are censored using a modified NATO phonetic
+    alphabet (papa -> phantom)
+    keep this in mind whenever finding something like FOXTROTUNIFORM in the code, 
+    this was a curse phrase.
 
     Graph class
         introduction
@@ -18,7 +26,7 @@ version 24102024 -> graph class basic ass implementation, bidirectional only.
         initialization of a graph 
             basic usage:
                 somegraph = graph([20 30, 30 2, 2 20]) -> this would create a "node" for every unique number and a connection for every unique pair. 
-                                                            (As of 22102024, these graphs are NOT directional, meaning 20 30 = 30 20)
+                                                            (As of 27102024, these graphs are NOT directional, meaning 20 30 = 30 20)
                                                         -> this means that it will create n nodes where n is the max number specified. If you need
                                                             23 nodes, for example, pass 23 as the max numbered connection and this will assume you have 23 nodes
                                                             to deal with
@@ -26,20 +34,31 @@ version 24102024 -> graph class basic ass implementation, bidirectional only.
             
         notes on the implementation:
             bfs:
-                bfs is implemented with a queue, in which the queue is a list and its methods are supposedly enough to deal with the algorithm.
-                also, graph has a __visited private variable which stores what exactly was visited for both the bfs and the dfs algorithms.
+                bfs is implemented with a queue, in which the queue is a list and 
+                its methods are supposedly enough to deal with the algorithm.
+                also, graph has a __visited private variable which stores what exactly was
+                visited for both the bfs and the dfs algorithms.
 
                 running bfs on an initialized graph such as:
                     somegraph.bfsSimple() 
                 should return a 3d list structure of the layers.
+                    which is generated from the visited list.
+            
+            layerfinder:
+                it is the function that actually finds the layers and organizes the 
+                3d structure.
+                Might need more versions, since one could modify the visited 
+                structure, which would majorly FOXTROT UNIFORM the entire algorithm.
 
             dfs: 
                 not yet implemented :)
-                
 
+            why the visit method is not private:
+                ah yes, this is useful to prevent bfs from going somewhere unwanted.
+                the expense would be that layerfinder would MIKEFOXTROTUNIFORM and provide 
+                unreliable output...
         
 """
-import numpy as np
 
 def numberDetect(someString: str) -> list: #passed on test battery 1 and is working as intended.
     """
@@ -93,6 +112,9 @@ def numberDetect(someString: str) -> list: #passed on test battery 1 and is work
     return numberlist
 
 #tree class moved away from this file
+
+#### GRAPH CLASS ###########
+
 class graph():
     def __init__(self, connectionsInit: list, **kwargs) -> None:
         """
@@ -113,9 +135,11 @@ class graph():
             print(self.numNodes)
         self.connections = [[0 for i in range(self.numNodes)] for i in range(self.numNodes)] #generate the 2d matrix, this is our graph representation.
         
-        #this block will operate through every connection passed and assemble our graph.
-            #ah yes, if you want this step to run faster, be a good boy and pass a list with bunch of lists with two integers each :)
-
+        # this block will operate through every connection
+        # passed and assemble our graph.
+        # ah yes, if you want this step to run faster, 
+        # be a good boy and pass a list with bunch of 
+        # lists with two integers each :)
         for connection in connectionsInit:
             if "debug" in kwargs:
                 print("initializing a new connection!")
@@ -127,7 +151,10 @@ class graph():
         self.connectionsCorrector()
        
     def printConnections(self) -> None:
-        "prints the connections matrix"
+        """
+            prints the connections matrix and stuff. 
+            simple as.
+        """
         for connection in self.connections:
             print(connection)
 
@@ -168,6 +195,7 @@ class graph():
         if len(self.__queue) > 0:
             return False
         return True
+    
     def clearQueue(self):
         self.__queue.clear()
         
@@ -183,37 +211,38 @@ class graph():
             what does not:
                 passing something that would generate a access error gets ignored.
         """
-        if not someconnection[0] > self.numNodes - 1 or not someconnection[1] > self.numNodes - 1:        
-            if type(someconnection) == str: #when type is string, this will call numberDetect :0
+        if not someconnection[0] > self.numNodes - 1 or not someconnection[1] > self.numNodes - 1:      #this would generate the big ass access error :>  
+            if type(someconnection) == str:                                                             #when type is string, this will call numberDetect :0
                 newConnection: list =  numberDetect(someconnection)
-                if len(newConnection) > 1: #if this is not true, connection is never made.
-                    self.connections[newConnection[0]][newConnection[1]] = self.connections[newConnection[1]][newConnection[0]] = 1
-            elif type(someconnection) == list: #meaning, theoretically, this happened -> ["diwaond1dniwoad2", [2, 3], "39201SEPARATOR4"].
+                if len(newConnection) > 1:                           #connections are made when at least two ints detected!
+                    self.connections[newConnection[0]][newConnection[1]] = \
+                    self.connections[newConnection[1]][newConnection[0]] = 1
+            elif type(someconnection) == list:                       #meaning, theoretically, this happened -> ["diwaond1dniwoad2", [2, 3], "39201SEPARATOR4"].
                 if len(someconnection) > 1:
-                    self.connections[someconnection[0]][self.connections[1]] = self.connections[someconnection[1]][someconnection[0]] = 1
+                    self.connections[someconnection[0]][self.connections[1]] = \
+                    self.connections[someconnection[1]][someconnection[0]] = 1
 
     def severConnection(self, toBeErased: list) -> None: 
         """
-            Erases a connection from the graph.
+            Erases a connection from the graph. Bidirectionally.
 
             Input:
                 [x,y] connection to be erased
                 Not adapted to work with strings!!
+            
             output:
                 no output! :0
 
         """
         self.connections[toBeErased[0]][toBeErased[1]] = self.connections[toBeErased[1]][toBeErased[0]] = 0 
 
-    
     def connectionsCorrector(self) -> None:
         """
             Makes sure no such connections as x<->x!
         """
         for i in range(self.numNodes):
             self.connections[i][i] = 0 
-
-                
+     
     def nodeIsConnected(self, x:int, y:int) -> int:
         """
             this supposedly works the same for directional graphs.
@@ -252,7 +281,6 @@ class graph():
         if nodePosit not in self.__visited:
             self.__visited.append(nodePosit)
         
-    
     def getVisited(self) -> list:
         """
             get visited -> returns the visited nodes from last method runned.
@@ -268,20 +296,19 @@ class graph():
 
         """
         return self.__visited
-
+    
     def cleanup(self) -> None:
         self.clearQueue()
         self.clearVisited()
 
-    def bfsSimple(self): 
+    def bfsSimple(self) -> list: 
         """
             bfs method
                 provides a basic breadth-first searching algorithm
                 is prepared to handle the graph class and will probably not work with
                 a simple 2d matrix, since it uses the visited private attribute.
             input:
-                start -> must be an int, represents the starting index of the search. If n
-                end -> execution stops when reaching this value. If left untouched, will not stopped until entire graph was visited.
+                noinput! -> this function will visit the entire graph finding whatever it can.
             usage:
                 #initialize a graph
                 somesimplegraph = graph([[1,2],[2,3],[3,4],[1,3]])
@@ -289,29 +316,33 @@ class graph():
                 path1 = somesimplegraph.bfs() 
             
             about the return value:
-                this will return a list organized by layers.
-                Example 1:
-                    say a given graph is connected like 1->2, 1->3, 2->4, 3->4
-                    then, calling a bfs on this graph should return:
-                    [[[1],[2,3],[4]]]
-                    We would know the connections by calling the original graph again.
-                Reading this information is as follows
-                GRAPH0
-                    [
-                        [TREE0
-                            [LAYER0],
-                            [LAYER1],
-                            ...
+                This was the original idea:
+                    this will return a list organized by layers.
+                    Example 1:
+                        say a given graph is connected like 1->2, 1->3, 2->4, 3->4
+                        then, calling a bfs on this graph should return:
+                        [[[1],[2,3],[4]]]
+                        We would know the connections by calling the original graph again.
+                    Reading this information is as follows
+                    GRAPH0
+                        [
+                            [TREE0
+                                [LAYER0],
+                                [LAYER1],
+                                ...
+                            ]
+                            [TREE1
+                                [LAYER0],
+                                [LAYER1],
+                            ...]
                         ]
-                        [TREE1
-                            [LAYER0],
-                            [LAYER1],
-                        ...]
-                    ]
-                Where if a given graph got more than 1 tree, there are unconnected paths and
-                every layer 0 got no more than 1 node, the root.
-                This 3d structure should be useful to find the precise layers and how many trees 
-                are inside this graph, precisely.
+                    Where if a given graph got more than 1 tree, there are unconnected paths and
+                    every layer 0 got no more than 1 node, the root.
+                    This 3d structure should be useful to find the precise layers and how many trees 
+                    are inside this graph, precisely.
+                I've decided to discard this bullshit return value, now it should return the non-discarded connections as such:
+                    [[1,4],[1,2],[1,5],[2,6],...]
+                    this may be used to create a new and simplified graph!
             
             about the implementation:
                 it uses a queue implementation bc i really don't wanna find
@@ -320,35 +351,47 @@ class graph():
                 Will test if it does when we implement dfs. That oughta Foxtrot up
                 quite bad. 
         """
-        self.cleanup() #makes sure initial queues are clean and stuff.
-        analisys = []
-        tree = []
-        layer = []
+        self.cleanup()                          #makes sure initial queues are clean and stuff.
+        bfsconnections = []
         for i in range(len(self.connections)):
-            tree.clear()
-            lastnode: int
-            if not self.isVisited(i): #means we process for all indexes not visited. After first execution, will always search for not visited indexes.
+            if not self.isVisited(i):           #means we process for all indexes not visited. After first execution, will always search for not visited indexes.
                 self.visit(i)
                 self.__enqueue(i)
-                tree.append([i]) #adds root as first layer of the tree 
-                lastnode = i
             while not self.queueIsEmpty():
                 thisNode = self.__dequeue()
                 for z in len(self.connections[thisNode]):
                     if self.connections[thisNode][z] and not self.isVisited(z):
                         self.visit(z)
                         self.__enqueue(z)
-                        
-                tree.append(layer)
-            if len(tree) > 0: #added because an empty tree might be added in case that for passes through something already visited :0
-                analisys.append(tree)
+                        bfsconnections.append([thisNode, z]) 
+        return bfsconnections #THERE MUCH SIMPLER NOW!!!!
+    
+    def bfsStart(self, start: int): 
+        """
+            basically the same as bfs simple, basic change is we do not have something 
+            like the funky range used in bfs simple, this guy here will assemble a single
+            tree. As soon as the queue dries up, so does the rest of the algorithm.
 
+            Also, this will only create a single tree, not searching unconnected nodes to the 
+            root passed, meaning that start parameter. 
 
+            input:
 
-                
-            
-                
-                
+        """
+        self.cleanup()
+        i = start
+        if not self.isVisited(i):
+            self.visit(i)
+            self.__enqueue(i) 
+        while not self.queueIsEmpty():
+            thisNode = self.__dequeue()
+            for z in len(self.connections[thisNode]):
+                if self.connections[thisNode][z] and not self.isVisited(z):
+                    self.visit(z)
+                    self.__enqueue(z)
+
+#### END OF GRAPH CLASS ####
+
 def getRandomGraph(seed: int = 3) -> graph:
     pass
 
