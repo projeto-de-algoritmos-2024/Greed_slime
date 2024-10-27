@@ -126,6 +126,16 @@ class graph():
 
             example:
                 somegraph = graph(["12 30", "11 15", "20 41", "11 11"]) -> this will work fine and create a bunch of connections.
+            
+            input: 
+                a list of connections properly formatted.
+            
+            output:
+                a graph object
+            
+            keywords:
+                debug -> will activate some of the debugging messages and stuff.
+            
 
         """
         self.__visited = []                                                                  # <- this will be used when searching and stuff.
@@ -174,7 +184,7 @@ class graph():
         except:
             return -1
         
-    def __dequeue(self, node: int) -> int:
+    def __dequeue(self) -> int:
         """
             dequeue: returns the dequeued index
 
@@ -219,7 +229,7 @@ class graph():
                     self.connections[newConnection[1]][newConnection[0]] = 1
             elif type(someconnection) == list:                       #meaning, theoretically, this happened -> ["diwaond1dniwoad2", [2, 3], "39201SEPARATOR4"].
                 if len(someconnection) > 1:
-                    self.connections[someconnection[0]][self.connections[1]] = \
+                    self.connections[someconnection[0]][someconnection[1]] = \
                     self.connections[someconnection[1]][someconnection[0]] = 1
 
     def severConnection(self, toBeErased: list) -> None: 
@@ -359,7 +369,7 @@ class graph():
                 self.__enqueue(i)
             while not self.queueIsEmpty():
                 thisNode = self.__dequeue()
-                for z in len(self.connections[thisNode]):
+                for z in range(len(self.connections[thisNode])):
                     if self.connections[thisNode][z] and not self.isVisited(z):
                         self.visit(z)
                         self.__enqueue(z)
@@ -469,4 +479,6 @@ if __name__ == "__main__":
     newgraph = graph([[0,1], [1,2], [2,0]], debug=1)
     newgraph.printConnections()
     print("testing 4 finished...")
+    print("TESTING 5: running a bfs on the graph")
+    print(newgraph.bfsSimple())
 
