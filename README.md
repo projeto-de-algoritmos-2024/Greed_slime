@@ -6,7 +6,7 @@
 ## Alunos
 |Matrícula | Aluno |
 | -- | -- |
-| 221/008436  |  xxxx xxxx xxxxx |
+| 22/1008436  |  Ryan Augusto Brandão Salles |
 | 22/xxxxxx  |  xxxx xxxx xxxxx |
 
 ## Sobre 
@@ -16,8 +16,8 @@ Descreva os objetivos do seu projeto e como ele funciona.
 Adicione 3 ou mais screenshots do projeto em funcionamento.
 
 ## Instalação 
-**Linguagem**: xxxxxx<br>
-**Framework**: (caso exista)<br>
+**Linguagem**: Python<br>
+**Framework**: Pygame; Numpy<br>
 Descreva os pré-requisitos para rodar o seu projeto e os comandos necessários.
 
 ## Uso 
