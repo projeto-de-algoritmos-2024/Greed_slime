@@ -3,13 +3,33 @@ Written by BCl0C, whose code is very damn terrible :).
 
 version 24102024 -> graph class basic ass implementation, bidirectional only.
 version 27102024 -> most of bfs implemented, not yet useful.
+version 30102024 -> bfs implemented, working, returns a useful 
+
+Who exactly is "we" as used along most of the documentation and commentary:
+    "We" is no less than us, you, the reader and me, the terrible ass programmer. 
+    When used, "We" refers to our cooperative effort to understand What In the FOXTROT
+    is going on.
+
+    Example:
+        Then, we may use this piece of code here to get what we need. 
+    
+    This is made so you can always feel my presence onto your walls.
+
 0th warning:
     As one might've noticed, lots of curse words are used during 
     commenting of the code. 
     To avoid major consequences, they are censored using a modified NATO phonetic
     alphabet (papa -> phantom)
     keep this in mind whenever finding something like FOXTROTUNIFORM in the code, 
-    this was a curse phrase.
+    this was a curse phrase. And one of the most common, at that, since it describes
+    what happens when someone misuses the code or follow the instructions wrong.
+
+    A compreehensive list of usual usage of this is as follows:
+        FOXTROTUNIFORM -> the result of bad or incorrect usage, which makes me proud,
+            since i go by badCode;
+        BETAALPHAMIKEFOXTROT -> someone despicable;
+        CHARLIEFOXTROT -> similar to foxtrot uniform;
+        MIKEFOXTROTUNIFORM -> A bigger foxtrot uniform.
 
     Graph class
         introduction
@@ -58,8 +78,37 @@ version 27102024 -> most of bfs implemented, not yet useful.
                 the expense would be that layerfinder would MIKEFOXTROTUNIFORM and provide 
                 unreliable output...
         
+    Utils: what are they, where they live and how to bury them many feet under.
+        numberDetect
+            Attempts to find numbers inside a string. Might not work with some special
+            string forms, have not found them yet and therefore have no way to fix it 
+            to run better. 
+
+        recursiveMax
+            attempts to find the greatest number inside a n-dimensional list, meaning
+                [[[[...[some Foxtrot number]...]]]]
+            Since max would simply return the list containing such a number, probably
+            by scanning memory and then giving you a pointer to the bloody list.
+            Not very great for graph purposes, since to know how many such nodes exist,
+            we use the greatest index possible.
+
+        curseUser
+            Attempts to hurt the psychological aspects of the user by attacking
+            his mental state.
+            Calls the user a f-bamf (FOXTROT BETA ALFA MIKE FOXTROT).
+            By all means, if you see the curse user message, do not attempt
+            to use the function that generated it.
+            It is most probably something not done.
+    
 """
 
+def curseUser():
+    """
+        sends a nice curse to the user when he tries to use something not ready.
+    """
+    print("why In The foxtrot(!) ye're trying to use the prototype, not even close to be completed function,\n\
+           ye mikeFoxtrot, ye Foxtrot Beta Alpha Mike Foxtrot (F-BAMF!)")
+    
 def numberDetect(someString: str) -> list: #passed on test battery 1 and is working as intended.
     """
         numberDetect
@@ -110,6 +159,36 @@ def numberDetect(someString: str) -> list: #passed on test battery 1 and is work
         except:
             print("tried to collect not number. ignored!")
     return numberlist
+
+def recursiveMax(nDimensionalList: list) -> int: #TODO -> TEST TO SEE IF PYTHON WILL DESTROY THE DATA INSIDE NDIMENSIONALLIST IN THIS ALGORITHM!!!!.
+    """
+    Simple ass algorithm to find the max number inside a ndimensional list.
+    Uses max recursively.
+    Useful to assemble graph structure without need to pass a number of nodes.
+    
+    usage:
+        recursiveMax([[1,2,3],[4,5,6]]) -> 6
+            in comparison, while very Foxtrot cool that 
+            calling max on this same list would return:
+                [4,5,6]
+            this would FoxtrotUniform later algorithms, 
+            such as the initialization of the graph object.
+
+    Expectations on how this works:
+        Since calling len() on a type int is a bad foxtrot'ng idea,
+        one might use this to his advantage to create a breakpoint.
+    
+    Other possible implementations:
+    
+    possible expansions:
+    """
+
+    try:
+        g = max(nDimensionalList)
+    except:
+        return nDimensionalList #if failure in the above, usually caused by finding an int.
+    return recursiveMax(g)
+    
 
 #tree class moved away from this file
 
@@ -386,20 +465,107 @@ class graph():
             root passed, meaning that start parameter. 
 
             input:
+                start: int 
+                    -> index of node to be used as tree root
+            
+            output:
+                bfsconnections: list
+                    -> list of connections found, may be passed onto a new graph object.
 
         """
         self.cleanup()
-        i = start
-        if not self.isVisited(i):
-            self.visit(i)
-            self.__enqueue(i) 
+        bfsconnections = []
+        self.visit(start)
+        self.__enqueue(start) 
         while not self.queueIsEmpty():
             thisNode = self.__dequeue()
             for z in len(self.connections[thisNode]):
                 if self.connections[thisNode][z] and not self.isVisited(z):
                     self.visit(z)
                     self.__enqueue(z)
+                    bfsconnections.append([thisNode, z]) 
+        return bfsconnections #THERE MUCH SIMPLER NOW!!!!
+    
+    def bfsStartEnd(self, start: int, end: int):
+        """
+            This one will assemble no more than a tree and will end 
+            as soon as it finds the MikeFoxtrot it needs. 
 
+            If it can't find the mikeFoxtrot, it will return the 
+            complete root to leaf of a tree on the graph.
+            At the very least, it is both somewhat easy to verify
+            if it found the desired node.
+            
+            usage:
+                path = g.bfsStartEnd(0, 5)
+                if 5 in path:
+                    print("Found!")
+
+            input:
+                start -> the node to be searched first, the tree root. 
+                end   -> the node to stop execution after finding. 
+
+            notes on implementation:
+                see that there is no more than a single for in the code
+                below.
+                That will prevent the algorithm from searching one more tree.     
+    
+                
+        """
+        self.cleanup()
+        bfsconnections = []
+        self.visit(start)
+        self.__enqueue(start) 
+        while not self.queueIsEmpty():
+            thisNode = self.__dequeue()
+            if thisNode == end:
+                self.visit(thisNode)
+                break #if we found our guy, no point in continuing, if he got enqueued, his connection was very much found and stuff. 
+            for z in len(self.connections[thisNode]):
+                if self.connections[thisNode][z] and not self.isVisited(z):
+                    self.visit(z)
+                    self.__enqueue(z)
+                    bfsconnections.append([thisNode, z]) 
+        return bfsconnections #THERE MUCH SIMPLER NOW!!!!
+    
+    def bfs(self, start: int = 0, end: int = 0): #general bfs, prepared to receive both a start end
+        if start == 0:
+            self.bfsSimple()
+        elif start != 0:
+            self.bfsStart(start)
+        elif start*end != 0:
+            self.bfsStartEnd(start, end)
+
+    def dfsSimple(self): #TODO
+        """
+            much of the same as bfsSimple, though now we run a dfs on this badman.
+            this function WILL run for all possible paths.
+
+            input:
+                noinput :> -> requires only a graph object
+            output:
+                dfsConnections -> a list of connections, made from running the algorithm.
+                    may be transplanted onto a new graph with some severed connections and 
+                    stuff!
+            
+            notes:
+                though in class professor taught us the recursive version, i took upon myself
+                to see an iterative version through. For this, we'll be using only the pseudo code
+                and stuff. 
+        """
+        curseUser() #not ready for usage, therefore cursing the user, as usual.
+        return ["leSsex"]
+        self.cleanup()
+        dfsConnections = []
+        for i in range(len(self.connections)): #this guy checks for roots and stuff. As it runs first, setting the starter node is merely a factor of setting the starting length.
+            if not self.isVisited(i):
+                self.visit(i)
+                self.__enqueue(i)
+            while not self.queueIsEmpty(): #runs when queue not empty! -> this guy visits a lot, so it is supposed to take the longest.
+                this = self.__dequeue()                     
+        pass
+
+    
 #### END OF GRAPH CLASS ####
 
 def getRandomGraph(seed: int = 3) -> graph:
@@ -460,9 +626,14 @@ if __name__ == "__main__":
                 ]
             )
         ) #testing max recursiveness. 
+    """
+    max behaviour veredict:
+        it seems to search for the list with the greatest number, but no such thing as 
+    """
     print(numNodes)
     print([[0 for i in range(numNodes)] for i in range(numNodes)]) #per tested, max needs to be max(max()) to extract actual 2d value!
     print("testing 2 finished...")
+    
     print("TESTING 3: usage of popleft list queue")
     somelist: list = [1,2,3]
     print("original list: " , somelist)
@@ -475,10 +646,18 @@ if __name__ == "__main__":
     print("list object after 'popage': ")
     print(somelist)
     print("testing 3 finished!")
+    
     print("TESTING 4: graph initialization")
     newgraph = graph([[0,1], [1,2], [2,0]], debug=1)
     newgraph.printConnections()
     print("testing 4 finished...")
+    
     print("TESTING 5: running a bfs on the graph")
     print(newgraph.bfsSimple())
+
+    print("TESTING 6: recursiveMax")
+    somerandomasslist = [[[1],[2]],[[3],[4]],[[5],[6]]] #terrible 3d list :0
+    print(recursiveMax(somerandomasslist))
+    print(somerandomasslist)
+
 
