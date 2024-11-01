@@ -531,12 +531,25 @@ class graph():
     def bfs(self, start: int = 0, end: int = 0): #general bfs, prepared to receive both a start end
         if start == 0:
             self.bfsSimple()
-        elif start != 0:
+        elif start > 0 and end == 0:
             self.bfsStart(start)
-        elif start*end != 0:
+        elif start*end > 0:
             self.bfsStartEnd(start, end)
 
-    def dfsSimple(self): #TODO
+    def __dfsvisit_nosearch(self, index, dfsconnections):
+        """
+            guts of the dfsSimple.
+            index -> the node we got to search and stuff.
+            connections -> (theoretically) a pointer to the connections, which will later get returned.
+        """
+        self.visit(index)
+        for i in range(len(self.connections[index])):
+            if self.connections[index][i] and not self.isVisited(i):  #translates to "if it is connected AND it was not visited"
+                #print("DEBUG: ", dfsconnections)
+                dfsconnections.append([index, i])
+                self.__dfsvisit_nosearch(i, dfsconnections)
+    
+    def dfsSimple(self):
         """
             much of the same as bfsSimple, though now we run a dfs on this badman.
             this function WILL run for all possible paths.
@@ -552,18 +565,18 @@ class graph():
                 though in class professor taught us the recursive version, i took upon myself
                 to see an iterative version through. For this, we'll be using only the pseudo code
                 and stuff. 
+                    nah, it would take too long to devise the algorithm, longer than we got.
+                    Will implement the recursive version and be done with it!
         """
-        curseUser() #not ready for usage, therefore cursing the user, as usual.
-        return ["leSsex"]
         self.cleanup()
         dfsConnections = []
-        for i in range(len(self.connections)): #this guy checks for roots and stuff. As it runs first, setting the starter node is merely a factor of setting the starting length.
+        for i in range(len(self.connections)): # <----------- this guy serves to migrate trees on a partially disconnected graphs
             if not self.isVisited(i):
-                self.visit(i)
-                self.__enqueue(i)
-            while not self.queueIsEmpty(): #runs when queue not empty! -> this guy visits a lot, so it is supposed to take the longest.
-                this = self.__dequeue()                     
-        pass
+                self.__dfsvisit_nosearch(i, dfsConnections) # this here is the real searcher and stuff...
+        return dfsConnections
+
+
+        
 
     
 #### END OF GRAPH CLASS ####
@@ -572,6 +585,37 @@ def getRandomGraph(seed: int = 3) -> graph:
     pass
 
 def generateGridGraph(resolution) -> graph:
+    """
+        generates a graph such as (given some resolution r)
+            1 -> 2 -> 3 -> 4 -> ... -> r
+            |    \      \
+            V     V       V
+            r+1 -> r+2 -> r+3 -> ... -> 2r
+            |
+            V
+            .
+            .
+            .
+            |
+            V
+            (r-1)r + 1 -> (r-1) + 2 -> ... -> r*r=r^2
+
+        meaning for every i,j in the matrix, we organize the nodes 
+        as if they were a position inside a grid.
+        Passing some r as resolution means we'll deal with r^2 nodes.
+
+        WARNING: this is obviously a quadratic algorithm. it WILL run slow :>
+        and WILL consume a quite some memory in the process, i do hope so. It
+        is naturally this way, of course. 
+
+        (Can't wait till an F-BAMF passes some stupid ass number and gets his
+        machine fried in the process. it'll probably be me :) )
+    """
+    curseUser()
+    return graph([[0,1]])
+    for i in range(resolution):
+        for j in range(resolution):
+            pass
     pass
         
 if __name__ == "__main__":
@@ -659,5 +703,8 @@ if __name__ == "__main__":
     somerandomasslist = [[[1],[2]],[[3],[4]],[[5],[6]]] #terrible 3d list :0
     print(recursiveMax(somerandomasslist))
     print(somerandomasslist)
+
+    print("TESTING 7: running dfs on a graph")
+    print(newgraph.dfsSimple())
 
 
