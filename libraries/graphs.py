@@ -213,7 +213,7 @@ class graph():
                 a graph object
             
             keywords:
-                debug -> will activate some of the debugging messages and stuff.
+                debug -> will activate some of the debugging messages and stuff. Algorithm simply checks if debug is a keyword and thats it.
             
 
         """
@@ -584,39 +584,58 @@ class graph():
 def getRandomGraph(seed: int = 3) -> graph:
     pass
 
-def generateGridGraph(resolution) -> graph:
+def generateGridGraph(resolution: int) -> graph:
     """
         generates a graph such as (given some resolution r)
-            1 -> 2 -> 3 -> 4 -> ... -> r
-            |    \      \
-            V     V       V
-            r+1 -> r+2 -> r+3 -> ... -> 2r
-            |
-            V
-            .
-            .
-            .
-            |
-            V
-            (r-1)r + 1 -> (r-1) + 2 -> ... -> r*r=r^2
+            0 -> 1 -> 2 -> 3 -> ... -> r-1
+            |    \      \              |
+            V     V       V            V
+            r -> r+1 -> r+2 -> ... -> 2r-1
+            |     |      |             \
+            V     V      V              V
+            .                           .
+            .                            .
+            .                             .
+            |                              \
+            V                               V
+            (r-1)r -> (r-1) + 1 -> ... -> (r*r=r^2)-1
 
         meaning for every i,j in the matrix, we organize the nodes 
         as if they were a position inside a grid.
         Passing some r as resolution means we'll deal with r^2 nodes.
 
-        WARNING: this is obviously a quadratic algorithm. it WILL run slow :>
-        and WILL consume a quite some memory in the process, i do hope so. It
-        is naturally this way, of course. 
+        WARNING: this is obviously a quadratic algorithm. it WILL run slow 
+        when passed some stupid big resolution, though, theoretically, it should
+        most likely be difficult to trespass the integer limit.
 
-        (Can't wait till an F-BAMF passes some stupid ass number and gets his
-        machine fried in the process. it'll probably be me :) )
+
     """
-    curseUser()
-    return graph([[0,1]])
-    for i in range(resolution):
-        for j in range(resolution):
-            pass
-    pass
+    connections = []
+    for i in range(resolution**2):
+        """
+                        i-r                
+                        ALREADY DONE
+        i-1 ALREADYDONE   i  NEEDS TO BE DONE i+1
+                        NEEDS TO BE DONE
+                        i+r
+        
+        for a single i, as this assumes a bidirectional nature of a 
+        graph, i must assure connection to its downward and forwared neighbors.
+        It also assumes upward and backward connections are ALREADY DONE.
+        """
+        xposition = i%resolution
+        yposition = int(i/resolution)
+
+        if xposition < resolution - 1: #handles special case 0 -> the node is in the rightmost wall.
+            connections.append([i, i+1])
+        if yposition < resolution - 1:
+            connections.append([i, i+resolution])
+    return graph(connections)
+        
+        
+
+
+
         
 if __name__ == "__main__":
     #EXECUTING THIS FILE AS MAIN RESULTS IN A BATTERY OF TESTS! :)
@@ -706,5 +725,8 @@ if __name__ == "__main__":
 
     print("TESTING 7: running dfs on a graph")
     print(newgraph.dfsSimple())
+    print("TESTING 8: creating a gridGraph")
+    someothergraph = generateGridGraph(4)
+    someothergraph.printConnections()
 
 
