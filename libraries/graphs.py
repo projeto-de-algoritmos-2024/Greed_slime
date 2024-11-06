@@ -13,7 +13,8 @@ Who exactly is "we" as used along most of the documentation and commentary:
     Example:
         Then, we may use this piece of code here to get what we need. 
     
-    This is made so you can always feel my presence onto your walls.
+    This is made so you can always feel my presence onto your walls :).
+    Like I'm just slotted there :).
 
 0th warning:
     As one might've noticed, lots of curse words are used during 
@@ -186,7 +187,7 @@ def recursiveMax(nDimensionalList: list) -> int: #TODO -> TEST TO SEE IF PYTHON 
     try:
         g = max(nDimensionalList)
     except:
-        return nDimensionalList #if failure in the above, usually caused by finding an int.
+        return nDimensionalList #if failure in the above, usually caused by finding an int. therefore, we return the thing.
     return recursiveMax(g)
     
 
@@ -533,7 +534,7 @@ class graph():
             self.bfsSimple()
         elif start > 0 and end == 0:
             self.bfsStart(start)
-        elif start*end > 0:
+        elif start*end > 0: #similar to start > 0 and end > 0
             self.bfsStartEnd(start, end)
 
     def __dfsvisit_nosearch(self, index, dfsconnections):
@@ -548,6 +549,26 @@ class graph():
                 #print("DEBUG: ", dfsconnections)
                 dfsconnections.append([index, i])
                 self.__dfsvisit_nosearch(i, dfsconnections)
+
+    def __dfsvisit_withsearch(self, index, dfsconnections, thebigone):
+        """
+            guts of the dfsSearch.
+            works basically the same as dfsvisit_nosearch, but returns as soon as it finds
+            the bigone.
+            index -> same
+            dfsconnections -> same
+            thebigone -> the index we're searching for, will return as soon as it finds it.
+        """
+        self.visit(index)
+        for i in range(len(self.connections[index])):
+            if self.connections[index][i] and not self.isVisited(i):  #translates to "if it is connected AND it was not visited"
+                dfsconnections.append([index, i])
+                
+                # this is the basic change. Returns as soon as it finds this MikeFoxtrot.
+                # was put here so the index is added to dfsConnections.
+                if i == thebigone:
+                    return
+                self.__dfsvisit_withsearch(i, dfsconnections, thebigone)
     
     def dfsSimple(self):
         """
@@ -574,6 +595,23 @@ class graph():
             if not self.isVisited(i):
                 self.__dfsvisit_nosearch(i, dfsConnections) # this here is the real searcher and stuff...
         return dfsConnections
+    
+    def dfsEnd(self, thebigone):
+        """
+            basically, the same as dfs. What changes is:
+                -> it stops as soon as it finds what it was looking for 
+                -> it will return a single tree always
+        """
+        self.cleanup()
+        dfsConnections = []
+        for i in range(len(self.connections)): # <----------- this guy serves to migrate trees on a partially disconnected graphs
+            if not self.isVisited(i):
+                self.__dfsvisit_withsearch(i, dfsConnections, thebigone) # this here is the real searcher and stuff...
+                if self.isVisited(thebigone): #meaning we found the fucker.
+                    return dfsConnections 
+                else:
+                    dfsConnections.clear()
+                    continue
 
 
         
