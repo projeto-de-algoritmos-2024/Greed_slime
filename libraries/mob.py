@@ -1,5 +1,5 @@
 import random
-
+import pygame as pg
 
 """
 
@@ -35,7 +35,7 @@ sp_def = 3
 spd = 4
 acc = 5
 
-
+# testando o tecrado muahahaha
 
 class Mob():
     def __init__(self, name, species, job, level):
@@ -43,9 +43,44 @@ class Mob():
         self.species = species
         self.job = job
         self.level = level
-        self.stats = [ int(10*random.random()), int(10*random.random()),int(10*random.random()), int(10*random.random()),int(10*random.random()), int(10*random.random()) ]
+        self.counter = 0
+        self.sprites = giveSprites(species, job)
+        self.stats = [ 
+            int(100*random.random()), 
+            int(100*random.random()),
+            int(100*random.random()), 
+            int(100*random.random()),
+            int(100*random.random()), 
+            int(100*random.random())
+            ]
+        
+        
+    def update(self, lists):
 
-    def update(self):
+        self.counter += 1
+        if self.counter >= self.stats[INV_SPD]:
+            attack(lists)
+            self.counter = 0
+        
+        # do the drawing function dumbass :3
+        if self.species in ["slime", "big_slime"]:
+            self.draw()
+
+        pass
+
+    def draw(self):
+        if self.job == "None":
+            pass
+        if self.job == "hero":
+            pass
+        if self.job == "tank":
+            pass
+        if self.job == "thief":
+            pass
+        if self.job == "mage":
+            pass
+        if self.job == "archer":
+            pass
         pass
 
 
