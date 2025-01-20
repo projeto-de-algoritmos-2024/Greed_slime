@@ -43,7 +43,19 @@ class Mob():
         self.species = species
         self.job = job
         self.level = level
-        self.stats = [ int(10*random.random()), int(10*random.random()),int(10*random.random()), int(10*random.random()),int(10*random.random()), int(10*random.random()) ]
+        self.statname = ['atk',
+                       'sp_atk',
+                       'def',
+                       'sp_def', 
+                       'inv_spd']
+        self.stats = { 
+                       'atk': int(10*random.random()),
+                       'sp_atk': int(10*random.random()),
+                       'def': int(10*random.random()),
+                       'sp_def': int(10*random.random()), 
+                       'inv_spd' : int(10*random.random()) 
+                       }
+    
 
     def update(self):
         pass
