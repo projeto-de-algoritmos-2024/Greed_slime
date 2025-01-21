@@ -1,9 +1,15 @@
 #written by bcl0c, whose utils will actually destroy your system32 when you're looking away.
 import random
 from mob import Mob as mob
-
+import pygame as pg
 
 DEBUG = True
+FPS = 60
+WIDTH = 640
+HEIGHT = 640
+vec = pg.math.Vector2
+mask = pg.Color(254,255,255)
+empty = pg.Color(0,0,0,0)
 zetta = mob(1, 2, 3, 4)
 print(zetta.stats['atk'])
 
