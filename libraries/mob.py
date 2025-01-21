@@ -45,14 +45,14 @@ class Mob():
         self.level = level
         self.counter = 0
         self.sprites = giveSprites(species, job)
-        self.stats = [ 
-            int(100*random.random()), 
-            int(100*random.random()),
-            int(100*random.random()), 
-            int(100*random.random()),
-            int(100*random.random()), 
-            int(100*random.random())
-            ]
+        self.stats = { 
+            'atk'    : int(100*random.random()), 
+            'sp_atk' : int(100*random.random()),
+            'defense': int(100*random.random()), 
+            'sp_def' : int(100*random.random()),
+            'spd'    : int(100*random.random()), 
+            'acc'    : int(100*random.random())
+        }
         
         
     def update(self, lists):
