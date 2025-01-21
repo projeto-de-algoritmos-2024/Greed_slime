@@ -38,6 +38,9 @@ acc = 5
 
 
 class Mob():
+    """
+        test of documentation
+    """
     def __init__(self, name, species, job, level):
         self.name = name
         self.species = species

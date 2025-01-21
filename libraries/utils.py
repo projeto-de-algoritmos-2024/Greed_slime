@@ -1,6 +1,9 @@
 #written by bcl0c, whose utils will actually destroy your system32 when you're looking away.
 import random
-from mob import Mob
+from mob import Mob as mob
+
+zetta = mob(1, 2, 3, 4)
+print(zetta.stats['atk'])
 
 def attackConnected(chance):
     if chance > 100: return False
@@ -8,9 +11,9 @@ def attackConnected(chance):
     connected = True if rng > chance else False
     return connected
 
-def attack(mob1: Mob , mob2: Mob):
+def attack(mob1: mob, mob2: mob):
     """
         attack function ->
             returns attack based on various stats and factors. 
     """
-    chance = mob2.
+    chance = 1/mob2.stats['inv_spd']
