@@ -3,6 +3,7 @@ import random
 from mob import Mob as mob
 import pygame as pg
 
+RUN_CONST = "RUN"
 DEBUG = True
 FPS = 60
 WIDTH = 640
